@@ -9,7 +9,7 @@ from PIL import Image
 import io
 import base64
 
-API_KEY = ''
+API_KEY = '' #for FMP
 OPENAI_API_KEY =''
 
 #LIDA
