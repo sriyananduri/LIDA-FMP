@@ -9,7 +9,7 @@ from PIL import Image
 import io
 import base64
 
-API_KEY = '' #for FMP
+API_KEY = ''
 OPENAI_API_KEY =''
 
 #LIDA
@@ -21,14 +21,11 @@ def fetch_data_and_generate_goals(company_symbol):
     response = requests.get(url)
     data = response.json()
     df = pd.DataFrame(data)
-    csv_filename = f'{company_symbol}_5min_stock_data.csv'
-    df.to_csv(csv_filename, index=False)
-    print(f"Saved data to {csv_filename}")
     
     textgen_config = TextGenerationConfig(n=1, temperature=0.5, model="gpt-4o-mini", use_cache=True)
-    summary = lida_manager.summarize(csv_filename, summary_method="default", textgen_config=textgen_config)
+    summary = lida_manager.summarize(df, summary_method="default", textgen_config=textgen_config)
     goals = lida_manager.goals(summary, n=3, textgen_config=textgen_config)
-    return goals, summary, df, csv_filename
+    return goals, summary, df
 
 #streamlit app
 st.title("Financial Data Visualization")
@@ -38,23 +35,18 @@ company_symbol = st.text_input("Enter company symbol")
 
 #fetch data and generate goals
 if st.button("Fetch Data"):
-    goals, summary, df, csv_filename = fetch_data_and_generate_goals(company_symbol)
-    print("Generated goals:")
-    for goal in goals:
-        print(goal)
+    goals, summary, df = fetch_data_and_generate_goals(company_symbol)
 
     #store in session_state
     st.session_state.goals = goals
     st.session_state.summary = summary
     st.session_state.df = df
-    st.session_state.csv_filename = csv_filename
 
 #check if the goal is stored in session_state
 if 'goals' in st.session_state:
     goals = st.session_state.goals
     summary = st.session_state.summary
     df = st.session_state.df
-    csv_filename = st.session_state.csv_filename
 
     st.write("CSV File Preview:")
     st.write(df.head())
@@ -79,7 +71,7 @@ if 'goals' in st.session_state:
 
             #generate visualization
             textgen_config = TextGenerationConfig(n=1, temperature=0.2, use_cache=True)
-            summary = lida_manager.summarize(csv_filename, summary_method="default", textgen_config=textgen_config)
+            summary = lida_manager.summarize(df, summary_method="default", textgen_config=textgen_config)
             charts = lida_manager.visualize(summary=summary, goal=goal, textgen_config=textgen_config, library="seaborn")
             chart = charts[0]
 
@@ -96,7 +88,7 @@ if 'goals' in st.session_state:
         st.image(img, caption="Visualization", use_column_width=True, width=1000)
 
         #generate explanation for chart
-        summary = lida_manager.summarize(csv_filename, summary_method="default", textgen_config=textgen_config)
+        summary = lida_manager.summarize(df, summary_method="default", textgen_config=textgen_config)
         explanation = lida_manager.explain(code=chart.code)
         st.write("\n")
         st.write("\n")
