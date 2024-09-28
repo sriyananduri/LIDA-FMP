@@ -8,7 +8,7 @@ import matplotlib.pyplot as plt
 from PIL import Image
 import io
 import base64
-API_KEY = st.secrets['API_KEY']
+API_KEY = st.secrets['API_KEY'] #for fmp
 OPENAI_API_KEY =st.secrets['OPENAI_API_KEY']
 
 #LIDA
