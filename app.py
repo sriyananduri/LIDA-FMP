@@ -9,8 +9,8 @@ from PIL import Image
 import io
 import base64
 
-API_KEY = ''
-OPENAI_API_KEY =''
+#API_KEY = ''
+#OPENAI_API_KEY =''
 
 #LIDA
 lida_manager = Manager(text_gen=llm("openai", api_key=OPENAI_API_KEY))
